@@ -1,0 +1,194 @@
+
+
+
+
+	************
+	* Information commands
+
+command: AT
+response: OK
+
+
+command: AT+MEROPE
+response: MEROPE OK
+
+
+	************
+	* time&date commands
+
+
+command: AT+DATE?
+response: current date set on device
+
+command: AT+TIME?
+response: current time set on device
+
+	Setting time and date
+
+command: AT+DATE=YYYY/MM/DD/W_D
+example: AT+DATE=2014/10/29/3
+year - 4 digits, month and day are 2 digits, week_day is 1 digit
+
+command: AT+DATE=2014/02/07/0
+20141029 => wednesday => week_day == 3
+
+
+command: AT+TIME=HH:MM:SS
+example: AT+TIME=21:14:45
+always 2 digits for every number: AT+TIME=03:05:07
+
+
+	************
+	* setting pins manually
+
+Set pin EXP0 to high state
+command: AT+EXP0=1
+
+Set pin EXP0 to low state
+command: AT+EXP0=0
+
+Set PWM0 pin to 45% (pulse width modulation)
+AT+PWM0=45
+
+Set PWM0 pin to 100% (100% really means this pin is just high)
+AT+PWM0=100
+
+
+	************
+	* event commands
+
+Set device to manual mode. Device's pins are set manually without using a program.
+command: AT+MANUAL_MODE
+
+Set device to automatic (events) mode; Device pins are set automatically according to a program on a device.
+command: AT+EVENT_MODE
+
+Prints all events
+command: AT+PRINT_EVENTS
+
+Clear all events
+command: AT+CLEAR_EVENTS
+
+	************
+	* adding events
+
+These are commands used to add events to a memory. 
+
+For adding commands it is important to set manual mode and clear earlier events:
+command: AT+MANUAL_MODE&CLEAR_EVENTS
+
+Add entry: set EXP0 pin to high at 8:30 every morning
+command: ADD=EXP0;0830;HIGH
+
+Add PWM event
+command: AT+ADD=pwm_pin;start_time;start_value;end_value;duration
+example: AT+ADD=PWM0;0830;0;100;60
+explanation: for PWM0 start at 8:30 at 0% and increase pwm value to 100% in 60 minutes
+note: duration is always minute; 
+
+Add negative PWM event
+if you want to decrease value use negative value
+command: ADD=PWM0;1930;100;-100;60
+explanation: for PWM0 start at 1930 at 100% and decrease pwm value 100% below current in 60 minutes
+
+	Important information
+
+Note: Added events has to be sorted by time.
+
+This is ok (first event at 10:00, later event at 12:30)
+AT+ADD=EXP0;1000;HIGH&ADD=EXP0;1230;LOW
+
+This is wrong
+AT+ADD=EXP0;1230;LOW&ADD=EXP0;1000;HIGH
+
+	************
+	* Example program:
+
+This is an example program. It is used to control light level of fluorescent tube. A relay used to enable/disable power is controlled by EXP0 pin of MMM module. The light level is controlled by driving the circuit by PWM0 pin of the module.
+
+The program: 
+ - the light slowly increases from dark to full light in one hour between 8:30 and 9:30
+ - the light level is 100% between 9:30 and 19:30
+ - the light is dimmed from 100% to 0% between 19:30 and 20:30
+ - the light is disabled between 20:30 (evening) and 8:30 (morning)
+ - if you restart device during program, it always checks what is the current mode
+
+Note: You may enter several commands at once. But char buffer is limited so don't add too long commands.
+
+AT+ADD=EXP0;0830;HIGH&ADD=PWM0;0830;0;100;60&ADD=PWM0;1930;100;-100;60&ADD=EXP0;2030;LOW&EVENT_MODE
+
+	What does the program do?
+
+beginning of every AT command
+command: AT+
+
+set pin EXP0 to high
+command: ADD=EXP0;0830;HIGH
+
+set PWM0 pin to: 0% at 8:30 and in 60 minutes increase to 100%
+command: ADD=PWM0;0830;0;100;60
+
+set PWM0 pin to 100% at 19:30 and in 60 minutes decrease it to 0% 
+command: ADD=PWM0;1930;100;-100;60
+
+set EXP0 pin to low state
+command: ADD=EXP0;2030;LOW
+
+enable event mode (runs the program)
+command: EVENT_MODE
+
+	************
+	* cloud events
+
+command: AT+CLOUD=pin;time;pin_state;duration;final_state
+example: AT+CLOUD=PWM1;1530;30;50;30
+
+	************
+	* other commands
+
+get and reset VL_BIT (in PCF8563)
+command: AT+GET_VL
+response: status of VL_BIT
+
+command: AT+RESET_VL
+response: resets VL_BIT
+
+
+	************
+	* Control commands
+
+command: AT+RESET
+response: reset of device
+
+	************
+	* HC-05 configuration
+
+Note: AT+PASS=AT+COMMAND passes AT commands directly to HC-05 BT
+
+command: AT+PASS=AT+PSWD=1357
+
+default pswd: 1234
+
+Change Bluetooth name
+command: AT+PASS=AT+NAME=Merope
+
+Get Bluetooth name:
+command: AT+PASS=AT+NAME?
+
+Other commands:
+
+Passes AT command to HC-05
+command: AT+PASS=AT
+
+Get state of HC-05
+command: AT+PASS=AT+STATE?
+
+Get version of HC-05
+command: AT+PASS=AT+VERSION?
+
+
+	************
+
+
+
+

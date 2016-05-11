@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "MeropeCentral", "MeropeCentral\MeropeCentral.cproj", "{142BA794-7454-43F8-8ACC-C389906EA8E8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		Release|AVR = Release|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{142BA794-7454-43F8-8ACC-C389906EA8E8}.Debug|AVR.ActiveCfg = Debug|AVR
+		{142BA794-7454-43F8-8ACC-C389906EA8E8}.Debug|AVR.Build.0 = Debug|AVR
+		{142BA794-7454-43F8-8ACC-C389906EA8E8}.Release|AVR.ActiveCfg = Debug|AVR
+		{142BA794-7454-43F8-8ACC-C389906EA8E8}.Release|AVR.Build.0 = Debug|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
