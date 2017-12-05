@@ -4,13 +4,13 @@
 * a simple microcontroller system for controlling light output of linear
 * fluorescent tube according to saved program
 *
-* version: 0.1 (December 2014)
+* version: 0.2 (December 2017)
 * compiler: Atmel Studio 6
 * by       : Jacek Szymoniak
 *          snegtec.com
 *          snegtec@outlook.com
 *
-* License  : Copyright (c) 2014-2016 Jacek Szymoniak
+* License  : Copyright (c) 2014-2017 Jacek Szymoniak
 *
 ****************************************************************************
 *
@@ -44,9 +44,11 @@
 #include "utils_pwm.h"
 #include "utils.h"
 
+//Note: Buffer size is 1 lower than the length specified. Because null on the end of the string
+#define BUFFER_SIZE 384
 
-char buffer[150];
-uint8_t pos = 0;
+char buffer[BUFFER_SIZE];
+uint16_t pos = 0;
 
 enum {STANDARD, PASS};
 int mode = STANDARD;
@@ -55,7 +57,7 @@ int mode = STANDARD;
 void clear_buffer()
 {
 	// clear buffer
-	for (uint8_t i = 0; i < sizeof(buffer); i++)
+	for (uint16_t i = 0; i < BUFFER_SIZE; i++)
 	buffer[i] = 0x00;
 	pos = 0;
 }
@@ -131,6 +133,11 @@ void parse_command(char *value)
 		// always 2 digits for every number: AT+TIME=03:05:07
 		if (strcmp(command, "TIME") == 0)
 		{
+			if (get_event_mode() != MANUAL_MODE) {
+				send_string("Switch to MANUAL mode first!\r\n");
+				return;
+			}
+			
 			char value[3];
 			int16_t tia[3];
 			long int result = 0;
@@ -138,15 +145,18 @@ void parse_command(char *value)
 			for (unsigned int i = 0; i < 3; i++)
 			{
 				strncpy(value, param + i * 3, 2);
-				value[2] = 0x00;
+				value[2] = 0x00; // string has to have null on its end
 				result = parse_int(value, &tia[i]);
+				
+				if (result == 0)
+				{
+					send_string("WRONG TIME PARSE\r\n");
+					break;
+				}
 			}
-			
-			if (result == 0)
-			{
-				send_string("WRONG TIME PARSE\r\n");
-			} else
-			{
+			send_enter();
+
+			if (result != 0) {
 				struct Time time;
 				time.hour = tia[0];
 				time.minute = tia[1];
@@ -157,12 +167,18 @@ void parse_command(char *value)
 				read_time();
 			}
 			
+			send_string("Remember to pass always 2 digits for every value: 05:30:00 is ok, but 5:30:00 is wrong!\r\n");
 		}
 		// AT+DATE=2014/10/29 WED ; 3 on the end is week_day
 		// year - 4 digits, month and day are 2 digits, week_day is 1 digit
 		// AT+DATE=2014/02/07/0
 		else if (strcmp(command, "DATE") == 0)
 		{
+			if (get_event_mode() != MANUAL_MODE) {
+				send_string("Switch to MANUAL mode first!\r\n");
+				return;
+			}
+			
 			char value[5];
 			int16_t tia[4];
 			long int result = 0;
@@ -214,7 +230,6 @@ void parse_command(char *value)
 				
 				read_date();
 			}
-			
 		}
 		// EXP1 WED 15h30 disable
 		// AT+ADD=EXP1;WED1530;DISABLE
@@ -222,6 +237,11 @@ void parse_command(char *value)
 		// AT+ADD=PWM0;SAT2015;35;50;20
 		else if (strcmp(command, "ADD") == 0)
 		{
+			if (get_event_mode() != MANUAL_MODE) {
+				send_string("Switch to MANUAL mode first!\r\n");
+				return;
+			}
+			
 			char *pch;
 			char *saveptr;
 			
@@ -281,6 +301,11 @@ void parse_command(char *value)
 		// AT+COOUD=pin;time;pin_state;duration;final_state
 		else if (strcmp(command, "CLOUD") == 0)
 		{
+			if (get_event_mode() != MANUAL_MODE) {
+				send_string("Switch to MANUAL mode first!\r\n");
+				return;
+			}
+			
 			char *pch;
 			char *saveptr;
 			
@@ -396,6 +421,11 @@ void parse_command(char *value)
 		}
 		else if (strcmp(command, "PASS") == 0)
 		{
+			if (get_event_mode() != MANUAL_MODE) {
+				send_string("Switch to MANUAL mode first!\r\n");
+				return;
+			}
+			
 			clear_buffer();
 			
 			mode = PASS;
@@ -424,12 +454,25 @@ void parse_command(char *value)
 		
 		if (strcmp(command, "MEROPE") == 0)
 		send_string("MEROPE OK\r\n");
-		else if (strcmp(command, "TIME?") == 0)
-		read_time();
-		else if (strcmp(command, "DATE?") == 0)
-		read_date();
+		else if (strcmp(command, "TIME?") == 0) {
+			if (get_event_mode() == MANUAL_MODE)
+				read_time();
+			else
+				send_string("Switch to MANUAL mode first!\r\n");
+		}
+		else if (strcmp(command, "DATE?") == 0) {
+			if (get_event_mode() == MANUAL_MODE)
+				read_date();
+			else
+				send_string("Switch to MANUAL mode first!\r\n");
+		}
 		else if (strcmp(command, "PASS") == 0)
 		{
+			if (get_event_mode() != MANUAL_MODE) {
+				send_string("Switch to MANUAL mode first!\r\n");
+				return;
+			}
+			
 			mode = PASS;
 			clear_buffer();
 			
@@ -449,6 +492,11 @@ void parse_command(char *value)
 		}
 		else if (strcmp(command, "CLEAR_EVENTS") == 0)
 		{
+			if (get_event_mode() != MANUAL_MODE) {
+				send_string("Switch to MANUAL mode first!\r\n");
+				return;
+			}
+			
 			clear_events();
 			send_string("OK\r\n");
 		}
@@ -458,16 +506,31 @@ void parse_command(char *value)
 		}
 		else if (strcmp(command, "MANUAL_MODE") == 0)
 		{
+			if (get_event_mode() == MANUAL_MODE) {
+				send_string("MANUAL mode already set!\r\n");
+				return;
+			}
+			
 			set_manual_mode();
 			send_string("OK\r\n");
 		}
 		else if (strcmp(command, "EVENT_MODE") == 0)
 		{
+			if (get_event_mode() == EVENT_MODE) {
+				send_string("EVENT mode already set!\r\n");
+				return;
+			}
+
 			set_event_mode();
 			send_string("OK\r\n");
 		}
 		else if (strcmp(command, "GET_VL") == 0)
 		{
+			if (get_event_mode() != MANUAL_MODE) {
+				send_string("Switch to MANUAL mode first!\r\n");
+				return;
+			}
+			
 			// check VL bit in PCF8563
 			if (get_vl())
 			send_string("VL bit is set. Replace backup battery\r\n");
@@ -476,6 +539,11 @@ void parse_command(char *value)
 		}
 		else if (strcmp(command, "RESET_VL") == 0)
 		{
+			if (get_event_mode() != MANUAL_MODE) {
+				send_string("Switch to MANUAL mode first!\r\n");
+				return;
+			}
+			
 			// resets vl_bit in PCF8563
 			reset_vl();
 			send_string("OK\r\n");
@@ -494,7 +562,7 @@ void parse_command(char *value)
 
 void check()
 {
-	if ((mode == PASS) & ((buffer[pos - 1] == 0x0D) | (buffer[pos - 1] == 0x0A)))
+	if (mode == PASS)
 	{
 		// set low state
 		PORTC &=~ (1 << DDC0);
@@ -506,8 +574,8 @@ void check()
 		char tbuf[80];
 		
 		// clear buffer
-		for (uint8_t i = 0; i < sizeof(tbuf); i++)
-		tbuf[i] = 0x00;
+		for (uint16_t i = 0; i < sizeof(tbuf); i++)
+			tbuf[i] = 0x00;
 		
 		strncpy(tbuf, buffer, pos - 1);
 		
@@ -519,9 +587,90 @@ void check()
 	} else if (mode == PASS)
 	return;
 	
-	// always start with "AT"
-	if ((buffer[0] != 'A') & (buffer[0] != 0x1B) /* & (buffer[0] != '#')*/)
-	clear_buffer();
+	
+	// AT command
+	else if ((buffer[0] == 'A') & (buffer[1] == 'T'))
+	{
+		// AT + null => size == 3
+		if (buffer[2] == 0x00)
+		{
+			send_string("OK\r\n");
+		}
+		// AT+SOMETHING or AT+MODE=LAST
+		else if (buffer[2] == '+')
+		{
+			char *full_command;
+			char *saveptr;
+			
+			// PASS mode?
+			if ((buffer[3] == 'P') & (buffer[4] == 'A') & (buffer[5] == 'S') & (buffer[6] == 'S'))
+			{
+				send_line(buffer + 3);
+				parse_command(buffer + 3);
+				return;
+			}
+			
+			// standard mode
+			// buffer + 3 => omit "AT+"
+			// note: in strtok_r the "\r\n" counts as 1 delimiter
+			//full_command = strtok_r(buffer + 3, "+&\r\n", &saveptr);
+			full_command = strtok_r(buffer + 3, "+&", &saveptr);
+			while (full_command != NULL)
+			{
+				send_line(full_command);
+				
+				parse_command(full_command);
+				
+				// next command
+				//full_command = strtok_r(NULL, "+&\r\n", &saveptr);
+				full_command = strtok_r(NULL, "+&", &saveptr);
+			}
+		}
+		clear_buffer();
+	}
+}
+
+
+//************************
+//* usart
+
+ISR(USART_RX_vect)
+{
+	// read the character from the uart
+	char tc = UDR0;
+	
+	if ((tc != '\n') && (tc != '\r')) {
+		// BUFFER_SIZE - 1 => because there has to be a place for null on the end of the string
+		if (pos < BUFFER_SIZE - 1) {
+			buffer[pos] = tc;
+			pos++;
+		} else {
+			send_string("Error: AT command to long!");
+			send_enter();
+		}
+	}
+	
+	/*
+	// cr	carriage return \r	0x0d => old Mac (before X)
+	// lf	line feed	\n	0x0a => Unix/Mac
+	// \r\n cr + lf => Windows
+	*/
+	
+	// always start with "AT" or ESC
+	if ((buffer[0] != 'A') & (buffer[0] != 0x1B)) {
+		clear_buffer();
+		
+		return;
+	}
+	
+	// if not AT command (but A-something)
+	else if ((pos > 1) & (buffer[0] == 'A') & (buffer[1] != 'T'))
+	{
+		send_string("?\r\n");
+		clear_buffer();
+		
+		return;
+	}
 	
 	// automatic reset before programming by BT and AVRDUDE
 	else if ((buffer[0] == 0x1B) & (pos > 1) & (buffer[1] == 'S'))
@@ -545,72 +694,27 @@ void check()
 		And all works!
 		
 		For more info:
-		if (pgm->flag & IS_BUTTERFLY_MK) {...} else {important part}
+		if (pgm->flag & IS_BUTTERFLY_MK) {...} else {the important part}
 		https://github.com/kcuzner/avrdude/blob/master/avrdude/butterfly.c
 		
-		Simply: '?' char is needed after receiving ESC, S. But it cannot be send after reset, to do it is need to send '?' before reset.
+		Simply: '?' char is needed after receiving ESC, S. But it cannot be send after reset, so we are sending '?' before reset.
 		*/
 	}
 	// wrong reset command
 	else if ((buffer[0] == 0x1B) & (pos > 1) & (buffer[1] != 'S'))
 	{
 		clear_buffer();
+		return;
 	}
-	// if not AT command (but A-something)
-	else if ((buffer[0] == 'A') & (buffer[1] != 'T') & (buffer[pos - 1] == 0x0D))
-	{
-		send_string("?\r\n");
-		clear_buffer();
-	}
-	// AT command
-	else if ((buffer[0] == 'A') & (buffer[1] == 'T') & (buffer[pos - 1] == 0x0D))
-	{
-		// AT + \r => size == 3
-		if (buffer[2] == 0x0D)
-		{
-			send_string("OK\r\n");
-		}
-		// AT+SOMETHING or AT+MODE=LAST
-		else if (buffer[2] == '+')
-		{
-			char *full_command;
-			char *saveptr;
-			
-			// PASS mode?
-			if ((buffer[3] == 'P') & (buffer[4] == 'A') & (buffer[5] == 'S') & (buffer[6] == 'S'))
-			{
-				send_line(buffer + 3);
-				parse_command(buffer + 3);
-				return;
-			}
-			
-			// standard mode
-			// buffer + 3 => omit "AT+"
-			full_command = strtok_r(buffer + 3,"+&\r\n", &saveptr);
-			while (full_command != NULL)
-			{
-				send_line(full_command);
-				
-				parse_command(full_command);
-				
-				// next command
-				full_command = strtok_r(NULL, "+&\r\n", &saveptr);
-			}
-		}
-		clear_buffer();
-	}
-}
-
-
-//************************
-//* usart
-
-ISR(USART_RX_vect)
-{
-	buffer[pos] = UDR0;
-	pos++;
 	
-	check();
+	// enter ends the line
+	if (tc == '\n' || tc == '\r') {
+	//if (buffer[pos - 1] == '\n') {
+	//if (buffer[pos - 2] == '\r' && buffer[pos - 1] == '\n') {
+		buffer[pos] = 0x00; // null terminated string
+		
+		check();
+	}
 }
 
 void USART_Init()

@@ -4,13 +4,13 @@
 * a simple microcontroller system for controlling light output of linear
 * fluorescent tube according to saved program
 *
-* version: 0.1 (December 2014)
+* version: 0.2 (December 2017)
 * compiler: Atmel Studio 6
 * by       : Jacek Szymoniak
 *          snegtec.com
 *          snegtec@outlook.com
 *
-* License  : Copyright (c) 2014-2016 Jacek Szymoniak
+* License  : Copyright (c) 2014-2017 Jacek Szymoniak
 *
 ****************************************************************************
 *
@@ -42,8 +42,10 @@
 
 int parse_int(const char *vs, int16_t *i)
 {
-	if (sscanf (vs, "%i", i) != 1)
-	return 1;
+	// here should be %d; %i doesn't work because strings like "08" are treated like octals
+	// so "08" is converted to 0.
+	if (sscanf (vs, "%d", i) == 1)
+		return 1;
 	
 	return 0;
 }

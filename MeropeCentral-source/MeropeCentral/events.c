@@ -4,13 +4,13 @@
 * a simple microcontroller system for controlling light output of linear
 * fluorescent tube according to saved program
 *
-* version: 0.1 (December 2014)
+* version: 0.2 (December 2017)
 * compiler: Atmel Studio 6
 * by       : Jacek Szymoniak
 *          snegtec.com
 *          snegtec@outlook.com
 *
-* License  : Copyright (c) 2014-2016 Jacek Szymoniak
+* License  : Copyright (c) 2014-2017 Jacek Szymoniak
 *
 ****************************************************************************
 *
@@ -97,9 +97,11 @@ enum {PIN_DISABLED = -2, NO_EVENT_YET = -1};
 
 int8_t actual_events[8] = {PIN_DISABLED, PIN_DISABLED, PIN_DISABLED, PIN_DISABLED, PIN_DISABLED, PIN_DISABLED, PIN_DISABLED, PIN_DISABLED};
 
-#define EVENT_MODE 0
-#define MANUAL_MODE 1
 uint8_t event_mode = EVENT_MODE;
+
+uint8_t get_event_mode() {
+	return event_mode;
+}
 
 void set_manual_mode()
 {
@@ -138,17 +140,31 @@ void add_event(int pin, int32_t time, int pin_state)
 {
 	// don't add if no space
 	if (events_count >= EVENTS_SIZE - 1)
-	return;
+		return;
 	
 	events[events_count].pin = pin;
 	events[events_count].time = time;
 	events[events_count].pin_state = pin_state;
 	
-	if (pin_state > 1)
-	events[events_count].type = PWM;
-	else
-	events[events_count].type = EXP;
-	
+	switch(pin)
+	{
+		case EXP0_PC2:
+		case EXP1_PD4:
+		case EXP2_PD7:
+		case EXP3_PB0:
+		events[events_count].type = EXP;
+		break;
+		
+		case PWM0_PD6:
+		case PWM1_PD5:
+		// not implemented yet case PWM2_PB1:
+		// not implemented yet case PWM3_PD3:
+		events[events_count].type = PWM;
+		break;
+		
+		default:break;
+	}
+
 	events_count++;
 	
 	// save event to eeprom
@@ -345,6 +361,11 @@ void print_event(uint8_t event_number)
 	}
 	else if (event.type == PWM)
 	{
+		// Note:
+		// the current value is displayed in utils_pwm => set_pwm0() which is run in run_pwm().
+		
+		//TODO - it always shows 0%
+		// it is because event=>pin_state is just the initial value not the current pin state!
 		send_int(event.pin_state);
 		send_string("% ");
 		
@@ -467,7 +488,6 @@ void run_pwm(uint8_t pin, struct Event *event)
 					
 					event->inc = new_state - event->pin_state;
 				}
-				
 			}
 			
 			// start value
@@ -774,9 +794,10 @@ Additional timer event
 */
 void timer_event()
 {
-	if (event_mode == MANUAL_MODE)
-	return;
-	
+	if (event_mode == MANUAL_MODE) {
+		return;
+	}
+
 	// for pwm time dependent events - always keep up to date
 	current_state();
 }

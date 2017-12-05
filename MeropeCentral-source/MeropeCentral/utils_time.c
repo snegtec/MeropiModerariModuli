@@ -4,13 +4,13 @@
 * a simple microcontroller system for controlling light output of linear
 * fluorescent tube according to saved program
 *
-* version: 0.1 (December 2014)
+* version: 0.2 (December 2017)
 * compiler: Atmel Studio 6
 * by       : Jacek Szymoniak
 *          snegtec.com
 *          snegtec@outlook.com
 *
-* License  : Copyright (c) 2014-2016 Jacek Szymoniak
+* License  : Copyright (c) 2014-2017 Jacek Szymoniak
 *
 ****************************************************************************
 *
@@ -268,15 +268,16 @@ int32_t parse_time(char *time)
 	char tca[6];
 	
 	strncpy(tca, time, 2);
-	tca[2] = 0;
+	
+	tca[2] = 0; // string has to have null on its end
 	int16_t hour = 0;
 	int result = parse_int(tca, &hour);
 	
 	if (result == 0)
-	return -1;
+		return -1;
 	
 	strncpy(tca, time + 2, 2);
-	tca[2] = 0;
+	tca[2] = 0; // string has to have null on its end
 	int16_t minute = 0;
 	result = parse_int(tca, &minute);
 	

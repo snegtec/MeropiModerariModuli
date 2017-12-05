@@ -4,13 +4,13 @@
 * a simple microcontroller system for controlling light output of linear 
 * fluorescent tube according to saved program
 *
-* version: 0.1 (December 2014)
+* version: 0.2 (December 2017)
 * compiler: Atmel Studio 6
 * by       : Jacek Szymoniak
 *          snegtec.com
 *          snegtec@outlook.com
 *
-* License  : Copyright (c) 2014-2016 Jacek Szymoniak
+* License  : Copyright (c) 2014-2017 Jacek Szymoniak
 * 
 ****************************************************************************
 *
@@ -120,18 +120,12 @@ int main(void)
 	
 	load_events();
 	
-	uint8_t i = 0;
-	
 	while(1)
 	{
 		// additional timer event
-		_delay_ms(100);
-		i++;
-		if (i == 4)
-		{
-			i = 0;
-			timer_event();
-		}
+		_delay_ms(5000);
+		timer_event();
 		
 	}
+	
 }

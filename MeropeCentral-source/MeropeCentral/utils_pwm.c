@@ -4,13 +4,13 @@
 * a simple microcontroller system for controlling light output of linear
 * fluorescent tube according to saved program
 *
-* version: 0.1 (December 2014)
+* version: 0.2 (December 2017)
 * compiler: Atmel Studio 6
 * by       : Jacek Szymoniak
 *          snegtec.com
 *          snegtec@outlook.com
 *
-* License  : Copyright (c) 2014-2016 Jacek Szymoniak
+* License  : Copyright (c) 2014-2017 Jacek Szymoniak
 *
 ****************************************************************************
 *
@@ -100,9 +100,6 @@ value: 0..255
 */
 void set_pwm0(uint8_t value)
 {
-	send_int(value);
-	send_string("  ");
-	
 	// write timer register
 	OCR0A = ~ value;
 }
@@ -118,6 +115,7 @@ void set_pwm1(uint8_t value)
 
 void set_pin(uint8_t pin, uint8_t pin_state)
 {
+	
 	switch(pin)
 	{
 		case EXP1_PD4:

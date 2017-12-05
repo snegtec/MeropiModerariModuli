@@ -4,13 +4,13 @@
 * a simple microcontroller system for controlling light output of linear
 * fluorescent tube according to saved program
 *
-* version: 0.1 (December 2014)
+* version: 0.2 (December 2017)
 * compiler: Atmel Studio 6
 * by       : Jacek Szymoniak
 *          snegtec.com
 *          snegtec@outlook.com
 *
-* License  : Copyright (c) 2014-2016 Jacek Szymoniak
+* License  : Copyright (c) 2014-2017 Jacek Szymoniak
 *
 ****************************************************************************
 *
@@ -33,17 +33,19 @@
 enum {HIGH_STATE = 1, LOW_STATE = 0};
 enum {PWM0_PD6 = 0, PWM1_PD5 = 1, PWM2_PB1 = 2, PWM3_PD3 = 3, EXP0_PC2 = 4, EXP1_PD4 = 5, EXP2_PD7 = 6, EXP3_PB0 = 7};
 
-
 // MeropeCentral
 void print_events();
 void reset();
 
 // events.c
+#define EVENT_MODE 0
+#define MANUAL_MODE 1
 void load_events();
 void timer_event();
 void clear_events();
 void set_manual_mode();
 void set_event_mode();
+uint8_t get_event_mode();
 void set_pin(uint8_t pin, uint8_t pin_state);
 int what_pin(char *value);
 void add_event(int pin, int32_t time, int pin_state);
