@@ -4,12 +4,12 @@
 * a simple microcontroller system for controlling light output of linear 
 * fluorescent tube according to saved program
 * 
-* version: 0.1 (December 2014)
+* version: 0.2 (December 2017)
 * author: Jacek Szymoniak
 *   snegtec.com
 *   snegtec@outlook.com
 * 
-* Copyright (c) 2014-2016 Jacek Szymoniak
+* Copyright (c) 2014-2017 Jacek Szymoniak
 * License:
 *   application, source code - GNU General Public License
 *   hardware (schematics, pcb design) - Creative Commons Attribution 
@@ -37,7 +37,7 @@ TODO
 * add more meaningful captions for elements on pcb boards; like 5V or 3,3V instead of X5 or X3;
 
 Bugs
-* sometimes there is a problem with transmission when AT+TIME? is sent to the module; probably twi and serial communication interfere in some way with each other; it also can stop the events from working; so currently - don't use AT+TIME? command in production environment
+* There is support for bigger buffer for transmission of AT commands. But sometimes there is a problem that the end of the line disapears when parsed.
 
 Bootloader information
 * My version of module uses ATMEL AVR UART Bootloader for AVR-GCC/avr-libc. It is not needed for modules to work. But it can be very helpful to update software when a final module is mounted in a place where there is difficult access.
