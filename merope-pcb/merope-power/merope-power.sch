@@ -10513,7 +10513,7 @@ Source: http://www.taiwansemi.com .. 5205_0409c.pdf</description>
 <sheet>
 <plain>
 <text x="63.5" y="-40.64" size="2.794" layer="94">Copyright (C) 2014-2016
-Jacek Szymoniak
+Erik Kos
 License: Creative Commons 
 Attribution-ShareAlike 4.0</text>
 </plain>

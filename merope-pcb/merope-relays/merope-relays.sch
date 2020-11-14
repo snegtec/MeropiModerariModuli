@@ -5331,7 +5331,7 @@ DIN A4, landscape with location and doc. field</description>
 <sheet>
 <plain>
 <text x="35.052" y="-79.756" size="2.794" layer="94">Copyright (C) 2014-2016
-Jacek Szymoniak
+Erik Kos
 License: Creative Commons 
 Attribution-ShareAlike 4.0</text>
 </plain>

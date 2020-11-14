@@ -7882,7 +7882,7 @@ Source: Fairchild .. BAT54.pdf</description>
 <sheets>
 <sheet>
 <plain>
-<text x="167.64" y="25.4" size="2.794" layer="94">Copyright (C) 2014-2016 Jacek Szymoniak
+<text x="167.64" y="25.4" size="2.794" layer="94">Copyright (C) 2014-2016 Erik Kos
 License: Creative Commons Attribution-ShareAlike 4.0</text>
 </plain>
 <instances>

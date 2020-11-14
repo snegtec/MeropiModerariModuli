@@ -4,12 +4,12 @@
 * a simple microcontroller system for controlling light output of linear 
 * fluorescent tube according to saved program
 * 
-* version: 0.2 (December 2017)
-* author: Jacek Szymoniak
+* version: 0.3 (November 2020)
+* author: Erik Kos
 *   snegtec.com
 *   snegtec@outlook.com
 * 
-* Copyright (c) 2014-2017 Jacek Szymoniak
+* Copyright (c) 2014-2020 Erik Kos
 * License:
 *   application, source code - GNU General Public License
 *   hardware (schematics, pcb design) - Creative Commons Attribution 

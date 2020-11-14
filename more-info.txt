@@ -1,0 +1,68 @@
+
+
+/****************************************************************************/
+
+Meropi Moderari Moduli
+
+Simple microcontroller system for controlling light output of linear fluorescent tube according to saved program
+Introduction
+
+I needed a way for adjusting the output of light of linear fluorescent tubes. I needed a system which allows me to program light level for specified hour. It had to be a system for simulating day. For example: at 6 o'clock the light is enabled but is weak. So up to 8 o'clock the light level rises slowly and it stays at specified value until 18 o'clock. Then it diminishes. And at 20 o'clock the light is turn off.
+
+So what I really wanted was a computer system. There weren't any market solution which suits me. The current existing systems was costly, difficult to use or limited. I decided to create my own solution. I chose to use din enclosures. It is tidy and clean way for electronic to be contained within. No need to design special boxes and cut holes in it. Usually fluorescent tubes don't diminish the light by itself. So I needed a special electronic ballast with function to reduce the light level. The chosen one used common 1-10V system.
+
+I like systems which are flexible and easy to use. I am a programmer so I am not limited to "(not) easy to use" user's interfaces. I wanted a system created by a programmer for use by a programmer. Why add physical buttons, lcd displays if there is much simpler solution? I used Bluetooth connectivity with its Serial Port Profile. This is the most simple and effective solution. Because a device can be controlled by Android phone or notebook. It gives possibility to make advanced functions with keeping in mind real easiness of software controls like buttons, radio and check boxes, edit boxes, lists and even sliders. And creating sophisticated desktop/mobile application is usually much simpler than creating traditional user interface with buttons, lcd displays and led diodes. 
+Hardware
+
+The hardware is divided into 3 din units. There is special control unit. It contains microcontroller (ATmega328P) with some additional components: micro-sd socket, real time clock (PCF8563) and HC05 bluetooth module which is connected with serial port of microcontroller. Micro-sd socket was added as a way of expanding memory for data. But it is not used in this application. There is 14 input/output lines. Some of them can be used as SPI and I2C lines. Four of them are used as PWM channels.
+
+The second din unit serves as a power unit. It is equipped with transformer which lowers voltage. It provides 3 lines of voltage: double 5V and 3,3V thanks of two 78L05F and TS520533 voltage regulators. The third unit contains two relays and two special voltage regulators. 1-10V electronic ballasts are driven by them. All connections are done with 3,5mm terminal blocks. Relays use 5mm terminal blocks. So during assembly in final din box there is no need to use solder iron - just a screwdriver.
+Electronics inside
+Software
+
+First programming of the central unit has to be done with standard ISP programmer. There was added a bootloader so all next software updates can be made using Bluetooth. Modules may be mounted in place where there is no easy access. So there is no need to press a button (or do something else on device) to enable to upload new software - just restart the module and upload new software.
+
+To use the device there is need to enter user defined set of on/off events. The default method uses terminal emulator. The user sends special AT commands to program date, time, events and lists previously programmed events or clear them. As of time of creating the solution I decided to not create special desktop application for a user. For me it was enough, and very comfortable to use terminal emulator. AT commands are good link between a microcontroller system and application with a graphical user interface. So I have just created simplified Android application. It enables a user to control level of light and there is possible to turn on and off light with a mobile phone.
+The application for Android phones
+Other features
+
+Finally, I added so called cloud events to the system. If a cloud covers Sun there is a smaller amount of light. But the clouds aren't usually uniform. So the light level changes constantly. Sometimes there are more clouds in the sky and sometimes there are just few clouds on it. So the cloud events simulate the light level change during cloudy day.
+
+Possible uses for such device are: light control, light control for an aquarium or a terrarium, industry applications, data gathering with wireless download and probably many others.
+Din modules
+Additional information
+
+Used fluorescent tubes were: OSRAM Lumilux T5 HE 880
+
+with 1-10V dimmable starter: b,a,g, BCD35.2F-01/220-240/1-10V
+Examples of AT commands
+
+set time
+
+AT+TIME=15:28:00
+
+check what date is on the device
+
+AT+DATE?
+
+List all on/off/pwm (cloud) events
+
+AT+PRINT_EVENTS
+
+clear events
+
+AT+CLEAR_EVENTS
+
+set EXP0 pin output enabled and PWM0 pin output to 127 (50%)
+
+AT+EXP0=1&PWM0=127
+
+add a program and enable automatic (events) mode
+
+AT+ADD=EXP0;0830;HIGH&ADD=PWM0;0830;0;100;60&ADD=PWM0;2050;100;-100;60&ADD=EXP0;2130;LOW&EVENT_MODE
+
+
+Copyright (c) 2014-2020 Erik Kos
+
+/****************************************************************************/
+

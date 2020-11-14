@@ -107,7 +107,7 @@
 <wire x1="0" y1="80" x2="0" y2="0" width="0" layer="20"/>
 <text x="68.8975" y="19.3675" size="0.8128" layer="25">Merope-Power
 (C) 2014-2016
-Jacek Szymoniak</text>
+Erik Kos</text>
 </plain>
 <libraries>
 <library name="pinhead">

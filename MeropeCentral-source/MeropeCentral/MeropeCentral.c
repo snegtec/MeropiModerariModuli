@@ -6,11 +6,11 @@
 *
 * version: 0.2 (December 2017)
 * compiler: Atmel Studio 6
-* by       : Jacek Szymoniak
+* by       : Erik Kos
 *          snegtec.com
 *          snegtec@outlook.com
 *
-* License  : Copyright (c) 2014-2017 Jacek Szymoniak
+* License  : Copyright (c) 2014-2017 Erik Kos
 * 
 ****************************************************************************
 *
